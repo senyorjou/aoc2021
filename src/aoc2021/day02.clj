@@ -62,17 +62,15 @@
   (* (first vals) (second vals)))
 
 
-(defn p1 []
+(defn solve [fn initial]
   (->> data
        (map parse-line)
-       (reduce steps {"horizontal" 0 "depth" 0})
+       (reduce fn initial)
        vals
        multiply))
 
+(defn p1 []
+  (solve steps {"horizontal" 0 "depth" 0}))
 
 (defn p2 []
-  (->> data
-       (map parse-line)
-       (reduce aimed-steps {"horizontal" 0 "depth" 0 "aim" 0})
-       vals
-       multiply))
+  (solve aimed-steps {"horizontal" 0 "depth" 0 "aim" 0}))
