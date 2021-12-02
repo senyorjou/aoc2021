@@ -11,7 +11,7 @@
 ;;    "down 8"
 ;;    "forward 2"])
 
-
+;; morning, morning
 (defn parse-line [line]
   (let [[action value] (str/split line #" ")]
     [action (Integer/parseInt value)]))
@@ -34,7 +34,45 @@
         downs (sum-second (filter down? lines))]
     (* forwards (- downs ups))))
 
-(defn p1 []
+
+(defn p1-old []
   (->> data
        (map parse-line)
        (process-prod)))
+
+;; night nigth
+
+(defn steps [state [action value]]
+  (case action
+    "forward" (update state "horizontal" + value)
+    "up"      (update state "depth"      - value)
+    "down"    (update state "depth"      + value)))
+
+(defn aimed-steps [state [direction value]]
+  (let [current-aim (get state "aim")]
+  (case direction
+    "forward" (-> state
+                 (update "horizontal" + value)
+                 (update "depth"      + (* value current-aim)))
+    "up"      (update state "aim" - value)
+    "down"    (update state "aim" + value))))
+
+
+(defn multiply [vals]
+  (* (first vals) (second vals)))
+
+
+(defn p1 []
+  (->> data
+       (map parse-line)
+       (reduce steps {"horizontal" 0 "depth" 0})
+       vals
+       multiply))
+
+
+(defn p2 []
+  (->> data
+       (map parse-line)
+       (reduce aimed-steps {"horizontal" 0 "depth" 0 "aim" 0})
+       vals
+       multiply))
