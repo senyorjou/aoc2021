@@ -17,6 +17,19 @@
    "00010"
    "01010"])
 
+(def E "00100
+11110
+10110
+10111
+10101
+01111
+00111
+11100
+10000
+11001
+00010
+01010")
+
 ;; Part 1 get the matrix and TRANSPOSE-IT
 ;; https://stackoverflow.com/a/40154124
 ;;
@@ -40,6 +53,12 @@
   (apply map vector lines))
 
 
+(defn bit-pairs [line]
+  (->> line
+       transpose
+       (mapv frequencies)))
+
+
 (defn significant [line]
   (let [pairs (frequencies line)
         zeroes (get pairs 0)
@@ -56,25 +75,28 @@
                   (map significant))
         mosts (bitseq->int (map :most sigs))
         leasts (bitseq->int (map :least sigs))]
-    (* mosts leasts))
+    (* mosts leasts)))
 
 
+(defn significant-bit [pairs]
+  (let [zeroes (get pairs 0)
+        ones (get pairs 1)]
+    (if (> zeroes ones)
+      {:most 0 :least 1}
+      {:most 1 :least 0})))
 
-;; (defn calc-value [churro]
-;;   (let [churrito (apply str churro)
-;;         freqs (frequencies churrito)
-;;         zeroes (get freqs \0)
-;;         ones (get freqs \1)]
-;;     (if (> zeroes ones) 0 1)))
 
-;; (defn columns [data]
-;;   (let [churro (str/join data))
-;;     (loop [col 1
-;;            churrito (take-nth 5 churro)
-;;            str-churro (apply str churrito)
-;;            col-value (calc-value churrito) ]
-;;       (if (> col 5))
-;;       )
-;;         col (take-nth 5 churro)
-;;         str-col (apply str col)]
-;;     str-col))
+(defn find-last-bucket [input most-or-least]
+  (loop [numbers input
+         idx 0]
+    (let [bit    (most-or-least (-> numbers bit-pairs (nth idx) significant-bit))
+          bucket (into [] (filter #(= bit (nth % idx))) numbers)]
+      (if (= 1 (count bucket))
+        (first bucket)
+        (recur bucket (inc idx))))))
+
+(defn p2 []
+  (let [line-data (map parse-line data)
+        O2 (bitseq->int (find-last-bucket line-data :most))
+        CO2 (bitseq->int (find-last-bucket line-data :least))]
+    (* O2 CO2)))
