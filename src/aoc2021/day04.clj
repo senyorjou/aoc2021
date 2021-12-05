@@ -53,7 +53,7 @@
   (map #(take-nth 5 (drop % board)) (range 5)))
 
 
-(defn play-board [drawn board]
+(defn play-board [board drawn]
   (map (fn [row]
          (if (= (:number row) drawn)
            (update row :hit not)
@@ -83,7 +83,7 @@
   (let [parsed (parse input)
         numbers (first parsed)]
     (loop [index 0
-           boards (map #(play-board (nth numbers index) %) (second parsed))]
+           boards (map #(play-board % (nth numbers index)) (second parsed))]
       (let [winners (filter some? (map #(winning-board %) boards))]
         (if (seq winners)
           (let [winner-board (first winners)
@@ -93,4 +93,18 @@
             (* lucky-number unmarked))
 
           (recur (inc index)
-                 (map #(play-board (nth numbers (inc index)) %) boards)))))))
+                 (map #(play-board % (nth numbers (inc index))) boards)))))))
+
+(defn split-reds [reds]
+  (let [[losts wins] (split-with #(not (winning-board %)) reds)
+        winner (first wins)]
+    {:index (dec (dec (count losts))) ;; - initial - post play
+     :unmarked (sum-unmarked winner)}))
+
+
+(defn p2 [input]
+  (let [[numbers boards] (parse input)
+        reds (map #(reductions play-board % numbers) boards)
+        splits (map split-reds reds)
+        looser (last (sort-by :index splits))]
+    (* (:index looser) (:unmarked looser))))
