@@ -1,36 +1,15 @@
 # aoc2021
 
-FIXME: description
+Solutions to AOC 2021: https://adventofcode.com/2021
 
-## Installation
+- Usually all days have `p1` and `p2` functions that solve the problems
+- Not optimized 
+- Just for fun
 
-Download from http://example.com/FIXME.
-
-## Usage
-
-FIXME: explanation
-
-    $ java -jar aoc2021-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
 
 ## License
 
-Copyright © 2021 FIXME
+Copyright © 2021 Marc Jou
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at
