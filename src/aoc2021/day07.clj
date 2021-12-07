@@ -15,7 +15,7 @@
   (->> (re-seq #"\d+" s)
        (map ch->int)))
 
-
+;; PART 1
 (defn median [ns]
   ;; https://rosettacode.org/wiki/Averages/Median#Clojure
   (let [ns (sort ns)
@@ -26,8 +26,9 @@
       (/ (+ (nth ns mid) (nth ns (dec mid))) 2))))
 
 (defn sum-to-n [n]
-  ;; n * (n + 1) / 2
-  (* n (/ (inc n) 2)))
+  ";; n * (n + 1) / 2"
+  (let [m (Math/abs n)]
+    (* m (/ (inc m) 2))))
 
 
 (defn fuel-needed [to from]
@@ -39,46 +40,27 @@
         fuel-fn (partial fuel-needed destination)]
     (map fuel-fn input)))
 
-(defn pfuel-needed [start end pos]
-  "Creates a list of fuel needed from first pos last"
-  (let [dist-to-start (Math/abs (- start pos))
-        dist-to-end (Math/abs (- end pos))]
-    [(sum-to-n dist-to-start) (sum-to-n dist-to-end)]))
+
+(defn p1 [input]
+  (reduce + (calc-fuel (parse-data input))))
 
 
-(defn p1 []
-  (reduce + (calc-fuel (parse-data data))))
+;; PART 2
 
+(defn consume-vector [input]
+  "Global vector of consumptions"
+  (let [edge (apply max input)]
+    (map sum-to-n (range (inc (* -1 edge)) edge))))
 
-(comment
-  (median (parse-data D))
-  (sort (parse-data D))
-  (calc-fuel (parse-data D))
-  (take 10 (parse-data data))
-  (median [1 1 1 1 6 6 6 6])
+(defn cv-for-pos [cv size pos]
+  (into [] (take size (drop (- size pos) cv))))
 
-
-  (calc-fuel (parse-data data))
-  (println (p1))
-
-  (calc-pfuel 1000 1)
-
-)
-
-
-
-(comment
-
-
-
-;; Move from 16 to 5: 66 fuel
-;; Move from 1 to 5: 10 fuel
-;; Move from 2 to 5: 6 fuel
-;; Move from 0 to 5: 15 fuel
-;; Move from 4 to 5: 1 fuel
-;; Move from 2 to 5: 6 fuel
-;; Move from 7 to 5: 3 fuel
-;; Move from 1 to 5: 10 fuel
-;; Move from 2 to 5: 6 fuel
-;; Move from 14 to 5: 45 fuel
-)
+(defn p2 [input]
+  (let [parsed-data (parse-data input)
+        global-vector (consume-vector parsed-data)
+        data-len (apply max parsed-data)
+        consume-vectors-for-pos (map #(cv-for-pos global-vector data-len %) parsed-data)]
+    (->> consume-vectors-for-pos
+         (apply map vector)  ;; transpose
+         (map #(reduce + %)) ;; sum
+         (apply min))))
