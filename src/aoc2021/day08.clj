@@ -36,31 +36,30 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
 (defn p1 [input]
   (apply + (map count-output (parse-data input))))
 
+
+
+
 ;; --- Part 2
-
-(defn find-1 [input]
-  (= (count input) 2))
-
-(defn find-4 [input]
-  (= (count input) 4))
-
-(defn find-7 [input]
-  (= (count input) 3))
-
-(defn find-8 [input]
-  (= (count input) 7))
 
 (defn find-6 [input match]
   ;; 6 is len 6 and NOT a subset of 1
-  ;; (= (count input) 6))
   (and (= (count input) 6)
        (not (clojure.set/subset? match (set input)))))
 
 (defn find-9 [input match]
   ;; 9 is len 6 and a subset of 4
-  ;; (= (count input) 6))
   (and (= (count input) 6)
        (clojure.set/subset? match (set input))))
+
+(defn find-3 [input match]
+  ;; 3 is len 5 and a subset of 1
+  (and (= (count input) 5)
+       (clojure.set/subset? match (set input))))
+
+(defn find-5 [input match]
+  ;; 5 is len 5 and a subset of 6
+  (and (= (count input) 5)
+       (clojure.set/subset? (set input) match)))
 
 
 (defn get-set [n line]
@@ -68,42 +67,38 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
     (first (map set matches))))
 
 (defn get-sub [n line]
-  (filter #(= n (count %)) line))
+  (set (filter #(= n (count %)) line)))
 
-
-(defn get-nums [line]
+(defn decode-entry [line]
   (let [set-1 (get-set 2 line)
         set-4 (get-set 4 line)
         set-7 (get-set 3 line)
         set-8 (get-set 7 line)
         sub-069 (get-sub 6 line)
-        leds-6 (filter #(find-6 % set-1) sub-069)
-        leds-9 (filter #(find-9 % set-4) sub-069)]
+        leds-6 (first (filter #(find-6 % set-1) sub-069))
+        leds-9 (first (filter #(find-9 % set-4) sub-069))
+        leds-0 (first (disj sub-069 leds-6 leds-9))
+        sub-235 (get-sub 5 line)
+        leds-3 (first (filter #(find-3 % set-1) sub-235))
+        leds-5 (first (filter #(find-5 % (set leds-6)) sub-235))
+        leds-2 (first (disj sub-235 leds-3 leds-5))]
 
-    [set-1 set-4 set-7 set-8 leds-6 leds-9 sub-069]))
+    {set-1 1
+     set-4 4
+     set-7 7
+     set-8 8
+     (set leds-6) 6
+     (set leds-9) 9
+     (set leds-0) 0
+     (set leds-3) 3
+     (set leds-5) 5
+     (set leds-2) 2}))
 
-(comment
+(defn match-dict [input output]
+  (Integer/parseInt (apply str (map #(get input (set %)) output))))
 
-  (apply + (map count-output (parse-data D)))
+(defn count-decoded [[input output]]
+  (match-dict (decode-entry input) output))
 
-  ;;
-  (def bits-groups {
-                    2 {1 "0010010"}
-                    3 {7 "1010010"}
-                    4 {4 "0111010"}
-                    5 {2 "1011101" 3 "1011011" 5 "1101011"}
-                    6 {0 "1110111" 6 "1101111" 9 "1111011"}
-                    7 {8 "1111111"}})
-
-  (def bits {
-        0 "1110111"
-        1 "0010010"
-        2 "1011101"
-        3 "1011011"
-        4 "0111010"
-        5 "1101011"
-        6 "1101111"
-        7 "1010010"
-        8 "1111111"
-        9 "1111011"})
-  )
+(defn p2 [input]
+  (reduce + (map #(count-decoded %) (parse-data input))))
